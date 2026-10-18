@@ -87,13 +87,18 @@
                 kind = algorithm;
             } else {
                 const source = $("leetInput").value;
-                if (!source.trim()) {
+                if (!source) {
                     $("leetInput").setAttribute("aria-invalid", "true");
                     $("leetInput").focus();
                     throw new Error("Masukkan teks terlebih dahulu.");
                 }
                 const random = $("leetStyle").value === "random";
                 const body = toLeet(source, { random, randomCase: $("randomCaseToggle").checked });
+                if (!body) {
+                    $("leetInput").setAttribute("aria-invalid", "true");
+                    $("leetInput").focus();
+                    throw new Error("Masukkan huruf, angka, spasi, atau _.");
+                }
                 value = formatFlag(body, $("leetPrefixInput").value, false);
                 kind = random ? "LEET ACAK" : "LEET KLASIK";
             }

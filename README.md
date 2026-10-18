@@ -8,7 +8,7 @@ Generator flag CTF dengan mode Random, Hash, dan Leet. Menggunakan HTML, CSS, da
 
 - **Random:** flag alfanumerik sepanjang 6–100 karakter, prefix opsional dengan default `FLAG`, dan pengacakan melalui `crypto.getRandomValues()` tanpa modulo bias.
 - **Hash:** MD5, SHA-1, SHA-256, SHA-384, dan SHA-512, dengan hasil heksadesimal lengkap. Pilih hasil mentah atau format `PREFIX{hash}`.
-- **Leet:** padanan acak per huruf, misalnya `a → 4 / @`, `s → 5 / $`, dan `o → 0 / ()`; opsi acak kapitalisasi serta mode Klasik dengan mapping asli.
+- **Leet:** pilih secara acak antara huruf asli dan padanan angka, misalnya `a → a / 4` dan `s → s / 5`; opsi acak kapitalisasi serta mode Klasik dengan mapping asli.
 - **UI responsif:** tiga tab, tema terang/gelap mengikuti preferensi sistem, hasil panjang yang membungkus baris, dan konfirmasi salin.
 - **Riwayat sesi:** enam hasil terakhir dari semua mode, masing-masing bisa disalin. Riwayat disimpan dalam memori dan hilang saat halaman dimuat ulang.
 - **Keyboard:** pindah tab dengan ← / →, Home, dan End; generate dengan Ctrl+Enter atau ⌘+Enter.
@@ -66,7 +66,7 @@ Hash dihitung dari teks UTF-8 pada kolom input, termasuk spasi dan baris baru. P
 4. Opsional: aktifkan acak huruf besar/kecil dan masukkan prefix.
 5. Klik **Generate leet**. Prefix kosong menghasilkan teks leet tanpa pembungkus.
 
-Spasi dan karakter whitespace diubah menjadi `_`. Karakter tanpa padanan, termasuk emoji, dipertahankan. Input hanya berupa whitespace ditolak.
+Hasil leet mengikuti pola `^[A-Za-z0-9_]+$`. Setiap spasi dan karakter whitespace diubah menjadi `_`. Simbol dan karakter di luar pola, termasuk emoji, dihapus. Jika hasilnya kosong, aplikasi meminta input lain. Pola ini berlaku untuk isi flag, sebelum prefix dan kurung ditambahkan.
 
 ## Privasi dan implementasi
 

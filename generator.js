@@ -6,9 +6,8 @@
     const HASH_LENGTHS = Object.freeze({ MD5: 32, "SHA-1": 40, "SHA-256": 64, "SHA-384": 96, "SHA-512": 128 });
     const CLASSIC_LEET = { a: "4", e: "3", t: "7", s: "5", g: "9", o: "0", l: "1" };
     const RANDOM_LEET = {
-        a: ["4", "@"], b: ["8", "|3"], e: ["3", "€"], g: ["9", "6"],
-        i: ["1", "!"], l: ["1", "|"], o: ["0", "()"], s: ["5", "$"],
-        t: ["7", "+"], z: ["2", "7_"]
+        a: ["4"], b: ["8"], e: ["3"], g: ["9", "6"],
+        i: ["1"], l: ["1"], o: ["0"], s: ["5"], t: ["7"], z: ["2"]
     };
 
     function secureRandomInt(max) {
@@ -42,11 +41,15 @@
     function toLeet(text, { random = true, randomCase = false } = {}, randomInt = secureRandomInt) {
         return Array.from(text, character => {
             if (/\s/u.test(character)) return "_";
+            if (!/^[A-Za-z0-9_]$/.test(character)) return "";
             const lower = character.toLowerCase();
             const choices = RANDOM_LEET[lower];
-            let converted = random
-                ? (choices ? choices[randomInt(choices.length)] : character)
-                : (CLASSIC_LEET[lower] || character);
+            let converted = character;
+            if (random && choices) {
+                converted = choices[randomInt(choices.length + 1)] ?? character;
+            } else if (!random) {
+                converted = CLASSIC_LEET[lower] || character;
+            }
             if (randomCase) {
                 converted = converted.replace(/[a-z]/gi, letter => randomInt(2) ? letter.toUpperCase() : letter.toLowerCase());
             }
