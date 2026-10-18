@@ -1,166 +1,144 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="id">
 <head>
-    <meta charset="UTF-8" />
-    <title>Flag Generator</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark light">
+    <meta name="description" content="Generator flag CTF dengan pilihan random, hash, dan leet.">
+    <title>Flag Generator — CTF Toolkit</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="style.css">
+    <script src="generator.js" defer></script>
+    <script src="script.js" defer></script>
 </head>
-
 <body>
+    <a class="skip-link" href="#generator">Langsung ke generator</a>
+    <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4m0 0c5-5 9 5 15 0v11c-6 5-10-5-15 0"/></symbol>
+        <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="m17 3 4 4-4 4M3 17h3c5 0 7-10 12-10h3M17 13l4 4-4 4M3 7h3c2 0 3 1 4 3m4 4c1 2 2 3 4 3h3"/></symbol>
+        <symbol id="i-hash" viewBox="0 0 24 24"><path d="m10 3-4 18M18 3l-4 18M3 9h18M2 15h18"/></symbol>
+        <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 5-6 7 6 7M16 5l6 7-6 7m-3-16-2 20"/></symbol>
+        <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></symbol>
+        <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+        <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1 1m12 12 1 1M5 19l1-1M18 6l1-1"/></symbol>
+        <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 15A9 9 0 0 1 9 4a9 9 0 1 0 11 11Z"/></symbol>
+        <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+        <symbol id="i-github" viewBox="0 0 24 24"><path d="M9 19c-4 1-4-2-6-2m12 5v-4a3 3 0 0 0-1-2c3 0 6-2 6-5a4 4 0 0 0-1-3 4 4 0 0 0 0-4s-1 0-4 2a13 13 0 0 0-6 0C6 4 5 4 5 4a4 4 0 0 0 0 4 4 4 0 0 0-1 3c0 3 3 5 6 5a3 3 0 0 0-1 2v4"/></symbol>
+    </svg>
+
     <div class="app-shell">
         <header class="top-bar">
-            <div class="title-wrap">
-                <div class="pill"></div>
-                <div class="main-title">
-                    <span>Flag Generator</span>
-                    <span>CTF Randomizer & Leet Converter</span>
-                </div>
-            </div>
-            <div class="actions">
-                <button class="btn btn-ghost btn-icon" type="button" id="themeToggle">
-                    ☀️
+            <a class="brand" href="./" aria-label="Flag Generator beranda">
+                <span class="brand-mark"><svg class="icon"><use href="#i-flag"/></svg></span>
+                <span>flag<span class="brand-muted">generator</span><span class="brand-dot">.</span></span>
+            </a>
+            <div class="header-actions">
+                <button class="icon-button" id="themeToggle" type="button" aria-label="Aktifkan tema terang" title="Ganti tema">
+                    <svg class="icon"><use id="themeIcon" href="#i-sun"/></svg>
                 </button>
+                <a class="icon-button" href="https://github.com/PocariKaleng/CTF-Flag-Genarator" target="_blank" rel="noopener noreferrer" aria-label="Buka repositori GitHub">
+                    <svg class="icon"><use href="#i-github"/></svg>
+                </a>
             </div>
         </header>
 
-        <div class="grid">
-            <!-- LEFT COLUMN: RANDOM FLAG -->
-            <section class="card">
-                <div class="card-header">
-                    <span>Flag Body Generator</span>
-                    <small>Random uppercase / lowercase / digits</small>
-                </div>
+        <main>
+            <div class="intro">
+                <h1>Flag Generator</h1>
+                <p class="intro-copy">Buat flag acak, hash, atau leet.</p>
+            </div>
 
-                <div class="field-group">
-                    <div class="field-label">
-                        Flag Format
-                        <span>Example: CODEX → CODEX{random}</span>
+            <div class="workspace" id="generator">
+                <section class="editor" aria-label="Pengaturan generator">
+                    <div class="mode-tabs" role="tablist" aria-label="Mode generator">
+                        <button class="mode-tab" id="tab-random" role="tab" aria-selected="true" aria-controls="panel-random" tabindex="0" data-mode="random">
+                            <svg class="icon"><use href="#i-shuffle"/></svg>Random
+                        </button>
+                        <button class="mode-tab" id="tab-hash" role="tab" aria-selected="false" aria-controls="panel-hash" tabindex="-1" data-mode="hash">
+                            <svg class="icon"><use href="#i-hash"/></svg>Hash
+                        </button>
+                        <button class="mode-tab" id="tab-leet" role="tab" aria-selected="false" aria-controls="panel-leet" tabindex="-1" data-mode="leet">
+                            <svg class="icon"><use href="#i-code"/></svg>Leet
+                        </button>
                     </div>
-                    <input type="text" id="prefixInput" value="" autocomplete="off" />
-                    <div class="subtext">
-                        Enter the event name. Curly brackets will be added automatically.
-                    </div>
-                </div>
 
-                <div class="field-group">
-                    <div class="field-label">
-                        Random Body Length
-                        <span id="lengthLabel">16 characters</span>
-                    </div>
-                    <div class="inline">
-                        <input type="range" id="lengthSlider" min="6" max="100" value="16"
-                            oninput="updateLengthLabel()" />
-                        <input type="number" id="lengthInput" min="6" max="100" value="16"
-                            oninput="syncLengthFromInput()" />
-                    </div>
-                    <div class="subtext">
-                        Characters used: A-Z, a-z, 0-9
-                    </div>
-                </div>
+                    <form id="generatorForm" novalidate>
+                        <div class="tab-panel" id="panel-random" role="tabpanel" aria-labelledby="tab-random">
+                            <div class="panel-heading"><h2>Flag acak</h2><p>Atur prefix dan panjang flag.</p></div>
+                            <div class="field">
+                                <label for="prefixInput">Prefix flag <span class="optional">opsional</span></label>
+                                <div class="prefix-field"><input id="prefixInput" type="text" maxlength="80" placeholder="FLAG" autocomplete="off" spellcheck="false"><span>{ … }</span></div>
+                                <p class="help">Contoh: CTF{isi_flag}. Kosongkan untuk memakai FLAG.</p>
+                            </div>
+                            <div class="field">
+                                <div class="label-row"><label for="lengthInput">Panjang isi flag</label><span class="field-meta">6–100 karakter</span></div>
+                                <div class="length-control">
+                                    <input id="lengthSlider" type="range" min="6" max="100" value="16" aria-label="Panjang isi flag">
+                                    <input id="lengthInput" type="number" min="6" max="100" value="16" inputmode="numeric" aria-describedby="lengthHelp">
+                                </div>
+                                <p class="help" id="lengthHelp">Tidak termasuk prefix dan kurung.</p>
+                            </div>
+                            <div class="charset-note"><span class="small-label">Karakter</span><div><code>A–Z</code><code>a–z</code><code>0–9</code></div></div>
+                        </div>
 
-                <div class="field-group">
-                    <button class="btn btn-primary" type="button" onclick="generateFlag()">
-                        Generate Flag
-                    </button>
-                </div>
+                        <div class="tab-panel" id="panel-hash" role="tabpanel" aria-labelledby="tab-hash" hidden>
+                            <div class="panel-heading"><h2>Hash</h2><p>Masukkan teks dan pilih algoritma.</p></div>
+                            <div class="field">
+                                <div class="label-row"><label for="hashInput">Teks sumber</label><button class="text-button" type="button" id="hashExample">Pakai contoh</button></div>
+                                <textarea id="hashInput" rows="3" maxlength="10000" placeholder="Masukkan teks" spellcheck="false" aria-describedby="hashInputHelp"></textarea>
+                                <p class="help" id="hashInputHelp">Spasi dan baris baru ikut dihitung.</p>
+                            </div>
+                            <div class="field-row">
+                                <div class="field"><label for="hashAlgorithm">Algoritma hash</label><select id="hashAlgorithm"><option value="MD5">MD5</option><option value="SHA-1">SHA-1</option><option value="SHA-256" selected>SHA-256</option><option value="SHA-384">SHA-384</option><option value="SHA-512">SHA-512</option></select></div>
+                                <div class="field"><label for="hashPrefixInput">Prefix flag <span class="optional">opsional</span></label><input id="hashPrefixInput" type="text" maxlength="80" placeholder="FLAG" autocomplete="off" spellcheck="false"></div>
+                            </div>
+                            <p class="algorithm-note" id="algorithmNote">64 karakter heksadesimal</p>
+                            <label class="check-row"><input id="hashWrapToggle" type="checkbox" checked><span>Gunakan format flag <small>PREFIX{hash}</small></span></label>
+                        </div>
 
-                <div class="field-group">
-                    <div class="field-label">Generated Flag</div>
-                    <div class="output-box" id="flagOutputBox">
-                        <span id="flagOutput" class="output-placeholder">Your generated flag will appear here...</span>
-                        <button class="copy-btn" type="button" onclick="copyFlag()">📋 Copy</button>
+                        <div class="tab-panel" id="panel-leet" role="tabpanel" aria-labelledby="tab-leet" hidden>
+                            <div class="panel-heading"><h2>Konversi leet</h2><p>Ubah huruf menjadi angka atau simbol.</p></div>
+                            <div class="field">
+                                <div class="label-row"><label for="leetInput">Teks untuk diubah</label><button class="text-button" type="button" id="leetExample">Pakai contoh</button></div>
+                                <textarea id="leetInput" rows="3" maxlength="10000" placeholder="Contoh: you found the secret" spellcheck="false" aria-describedby="leetHelp"></textarea>
+                            </div>
+                            <div class="field-row">
+                                <div class="field"><label for="leetStyle">Gaya leet</label><select id="leetStyle"><option value="random">Acak</option><option value="classic">Klasik</option></select></div>
+                                <div class="field"><label for="leetPrefixInput">Prefix flag <span class="optional">opsional</span></label><input id="leetPrefixInput" type="text" maxlength="80" placeholder="Tanpa prefix" autocomplete="off" spellcheck="false"></div>
+                            </div>
+                            <label class="check-row"><input id="randomCaseToggle" type="checkbox"><span>Acak huruf besar/kecil</span></label>
+                            <p class="help leet-help" id="leetHelp">a → 4 / @ &nbsp; s → 5 / $ &nbsp; o → 0 / ()<br>Spasi diganti _.</p>
+                        </div>
+
+                        <div class="form-bottom">
+                            <p class="form-error" id="formError" role="alert" hidden></p>
+                            <button class="primary-button" type="submit" id="generateButton"><svg class="icon"><use href="#i-shuffle"/></svg><span id="generateLabel">Generate flag</span><svg class="icon button-arrow"><use href="#i-arrow"/></svg></button>
+                            <p class="keyboard-hint">atau tekan <kbd>Ctrl</kbd> + <kbd>Enter</kbd></p>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="result-panel" aria-labelledby="resultHeading">
+                    <div class="result-heading"><h2 id="resultHeading">Hasil</h2><span class="result-type" id="resultType">RANDOM</span></div>
+                    <div class="result-stage" id="resultStage">
+                        <output id="flagOutput" class="flag-output output-placeholder" aria-live="polite" aria-atomic="true">Belum ada hasil.</output>
+                        <p class="result-caption" id="resultCaption">Klik Generate untuk mulai.</p>
                     </div>
-                </div>
+                    <div class="result-meta"><span><span class="status-dot" id="outputDot"></span><span id="resultStatus">Menunggu input</span></span><span id="characterCount">— karakter</span></div>
+                    <button class="copy-button" id="copyButton" type="button" disabled><svg class="icon"><use href="#i-copy"/></svg><span id="copyLabel">Salin hasil</span></button>
+                </section>
+            </div>
 
-                <hr class="section-divider" />
-
-                <div class="field-group">
-                    <div class="field-label">Recent Flags <span>(Last 3)</span></div>
-                    <textarea id="historyBox" readonly placeholder="No flags generated yet."></textarea>
-                </div>
+            <section class="history-section" aria-labelledby="historyHeading">
+                <div class="history-header"><h2 id="historyHeading"><svg class="icon"><use href="#i-clock"/></svg>Riwayat sesi <span id="historyCount">0</span></h2><button type="button" class="text-button" id="clearHistory" disabled>Hapus riwayat</button></div>
+                <p class="history-empty" id="historyEmpty">Belum ada riwayat.</p>
+                <ul id="historyList" class="history-list" aria-label="Hasil generate terbaru"></ul>
             </section>
+        </main>
 
-            <!-- RIGHT COLUMN: LEET CONVERTER -->
-            <section class="card">
-                <div class="card-header">
-                    <span>Leet Converter</span>
-                    <small>Convert text → numbers / symbols</small>
-                </div>
-
-                <div class="field-group">
-                    <div class="field-label">
-                        Input Text
-                        <span>Example: hello you are late</span>
-                    </div>
-                    <textarea id="leetInput" rows="4" placeholder="Enter text to convert into leetspeak..."></textarea>
-                </div>
-
-                <div class="field-group">
-                    <div class="field-label">
-                        Flag Format (Optional)
-                        <span>Example: CODEX → CODEX{leet}</span>
-                    </div>
-                    <input type="text" id="leetPrefixInput" placeholder="Flag Format" autocomplete="off" />
-                    <div class="subtext">
-                        If filled, final output becomes PREFIX{converted_leet}. Leave empty for pure leet result.
-                    </div>
-                </div>
-
-                <div class="field-group">
-                    <label style="display:flex; gap:6px; font-size:11px; color:var(--text-muted);">
-                        <input type="checkbox" id="randomCaseToggle" />
-                        Randomize uppercase/lowercase
-                    </label>
-                </div>
-
-                <div class="field-group">
-                    <button class="btn" type="button" onclick="convertLeet()">
-                        🔁 Convert to Leet
-                    </button>
-                </div>
-
-                <div class="field-group">
-                    <div class="field-label">Converted Output</div>
-                    <div class="output-box">
-                        <span id="leetOutput" class="output-placeholder">Converted text will appear here...</span>
-                        <button class="copy-btn" type="button" onclick="copyLeet()">📋 Copy</button>
-                    </div>
-                </div>
-
-                <hr class="section-divider" />
-
-                <div class="field-group">
-                    <div class="field-label">Mapping Rules</div>
-                    <div class="subtext">
-                        A→4, E→3, T→7, S→5, G→9, O→0, L→1, space→_
-                    </div>
-                </div>
-
-                <div class="footer">
-                    <a class="repo-link" href="https://github.com/afrdian/CTF-Flag-Genarator" target="_blank">
-                        <svg height="16" viewBox="0 0 16 16" width="16" class="github-icon">
-                            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 
-      6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49
-      -2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52
-      -.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07
-      -1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12
-      0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 2-.27c.68 0 1.36.09 2 .27 
-      1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 
-      1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 
-      0 1.07-.01 1.93-.01 2.19 0 .21.15.46.55.38A8.013 
-      8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z">
-                            </path>
-                        </svg>
-                        Afrdian-Flag-Genarator
-                    </a>
-                </div>
-            </section>
-        </div>
+        <footer class="page-footer"><a href="https://github.com/PocariKaleng/CTF-Flag-Genarator" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></footer>
     </div>
-
-    <script src="script.js"></script>
+    <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+    <noscript><p class="noscript-note">Aktifkan JavaScript untuk menggunakan generator.</p></noscript>
 </body>
-
 </html>

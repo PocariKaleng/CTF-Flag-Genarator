@@ -1,136 +1,227 @@
-// charset: uppercase + lowercase + digits
-const CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+/* UI only; generation functions live in generator.js. */
+(() => {
+    "use strict";
+    const { HASH_LENGTHS, clampLength, generateRandomBody, formatFlag, toLeet, hashText } = window.FlagGenerator;
+    const $ = id => document.getElementById(id);
+    const tabs = Array.from(document.querySelectorAll(".mode-tab"));
+    const results = { random: null, hash: null, leet: null };
+    const history = [];
+    let mode = "random";
+    let busy = false;
+    let toastTimer, copyTimer;
 
-function secureRandomInt(max) {
-    if (window.crypto && window.crypto.getRandomValues) {
-        const array = new Uint32Array(1);
-        window.crypto.getRandomValues(array);
-        return array[0] % max;
-    }
-    return Math.floor(Math.random() * max);
-}
-
-function generateRandomBody(length) {
-    let result = "";
-    for (let i = 0; i < length; i++) {
-        result += CHARSET[secureRandomInt(CHARSET.length)];
-    }
-    return result;
-}
-
-function generateFlag() {
-    const prefix = (document.getElementById("prefixInput").value.trim() || "FLAG");
-    let length = parseInt(document.getElementById("lengthInput").value, 10);
-
-    if (isNaN(length) || length < 6) length = 6;
-    if (length > 100) length = 100;
-
-    document.getElementById("lengthInput").value = length;
-    document.getElementById("lengthSlider").value = length;
-    updateLengthLabel();
-
-    const body = generateRandomBody(length);
-    const flag = `${prefix}{${body}}`;
-
-    const out = document.getElementById("flagOutput");
-    out.textContent = flag;
-    out.classList.remove("output-placeholder");
-
-    const history = document.getElementById("historyBox");
-    const lines = history.value ? history.value.split("\n").filter(Boolean) : [];
-    lines.unshift(flag);
-    history.value = lines.slice(0, 3).join("\n");
-}
-
-function updateLengthLabel() {
-    const value = document.getElementById("lengthSlider").value;
-    document.getElementById("lengthLabel").textContent = `${value} characters`;
-    document.getElementById("lengthInput").value = value;
-}
-
-function syncLengthFromInput() {
-    let v = parseInt(document.getElementById("lengthInput").value, 10);
-    if (isNaN(v)) v = 16;
-    if (v < 6) v = 6;
-    if (v > 100) v = 100;
-    document.getElementById("lengthSlider").value = v;
-    updateLengthLabel();
-}
-
-// COPY
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).catch(() => { });
-}
-
-function copyFlag() {
-    const text = document.getElementById("flagOutput").textContent.trim();
-    copyToClipboard(text);
-}
-
-function copyLeet() {
-    const text = document.getElementById("leetOutput").textContent.trim();
-    copyToClipboard(text);
-}
-
-// LEET
-const LEET_MAP = {
-    a: "4", A: "4",
-    e: "3", E: "3",
-    t: "7", T: "7",
-    s: "5", S: "5",
-    g: "9", G: "9",
-    o: "0", O: "0",
-    l: "1", L: "1",
-    " ": "_"
-};
-
-function toLeet(text) {
-    return text.split("").map(ch => LEET_MAP[ch] || ch).join("");
-}
-
-function randomizeCase(str) {
-    return str.split("").map(ch =>
-        /[a-zA-Z]/.test(ch) ? (Math.random() < 0.5 ? ch.toLowerCase() : ch.toUpperCase()) : ch
-    ).join("");
-}
-
-function convertLeet() {
-    const input = document.getElementById("leetInput").value;
-    if (!input) return;
-
-    let result = toLeet(input);
-
-    if (document.getElementById("randomCaseToggle").checked) {
-        result = randomizeCase(result);
+    function notify(message) {
+        clearTimeout(toastTimer);
+        $("toast").textContent = message;
+        $("toast").classList.add("visible");
+        toastTimer = setTimeout(() => $("toast").classList.remove("visible"), 3000);
     }
 
-    const prefix = document.getElementById("leetPrefixInput").value.trim();
-    if (prefix) result = `${prefix}{${result}}`;
+    function clearError() {
+        $("formError").hidden = true;
+        $("leetInput").removeAttribute("aria-invalid");
+    }
 
-    const out = document.getElementById("leetOutput");
-    out.textContent = result;
-    out.classList.remove("output-placeholder");
-}
+    function selectMode(nextMode) {
+        mode = nextMode;
+        tabs.forEach(tab => {
+            const selected = tab.dataset.mode === mode;
+            tab.setAttribute("aria-selected", String(selected));
+            tab.tabIndex = selected ? 0 : -1;
+            $("panel-" + tab.dataset.mode).hidden = !selected;
+        });
+        clearError();
+        $("generateButton").querySelector("use").setAttribute("href", "#i-" + ({ random: "shuffle", hash: "hash", leet: "code" }[mode]));
+        renderResult();
+    }
 
-// THEME
-function applyTheme(theme) {
-    document.body.classList.toggle("light-theme", theme === "light");
-    document.getElementById("themeToggle").textContent = theme === "light" ? "🌙" : "☀️";
-    localStorage.setItem("flaggen-theme", theme);
-}
+    function renderResult() {
+        clearTimeout(copyTimer);
+        $("copyLabel").textContent = "Salin hasil";
+        const result = results[mode];
+        $("generateLabel").textContent = mode === "leet" ? "Generate leet" : mode === "hash" ? "Generate hash" : "Generate flag";
+        $("resultType").textContent = result?.kind || mode.toUpperCase();
+        $("resultStage").classList.toggle("has-result", Boolean(result));
+        document.querySelector(".result-panel").classList.toggle("has-result", Boolean(result));
+        $("copyButton").disabled = !result;
+        $("flagOutput").textContent = result ? result.value : "Belum ada hasil.";
+        $("flagOutput").classList.toggle("output-placeholder", !result);
+        $("resultStatus").textContent = result ? "Selesai" : "Menunggu input";
+        $("characterCount").textContent = result ? Array.from(result.value).length + " karakter" : "— karakter";
+        $("resultCaption").hidden = Boolean(result);
+    }
 
-function initTheme() {
-    const saved = localStorage.getItem("flaggen-theme");
-    const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
-    applyTheme(saved || (prefersLight ? "light" : "dark"));
+    function syncLength(value) {
+        const length = clampLength(value);
+        $("lengthInput").value = length;
+        $("lengthSlider").value = length;
+    }
 
-    document.getElementById("themeToggle").addEventListener("click", () => {
-        const isLight = document.body.classList.contains("light-theme");
-        applyTheme(isLight ? "dark" : "light");
+    function updateAlgorithmNote() {
+        const algorithm = $("hashAlgorithm").value;
+        $("algorithmNote").textContent = HASH_LENGTHS[algorithm] + " karakter heksadesimal";
+    }
+
+    async function generate(event) {
+        event.preventDefault();
+        if (busy) return;
+        clearError();
+        const requestedMode = mode;
+        busy = true;
+        $("generateButton").disabled = true;
+        $("generatorForm").setAttribute("aria-busy", "true");
+        $("generateLabel").textContent = "Memproses…";
+        try {
+            let value, kind;
+            if (requestedMode === "random") {
+                syncLength($("lengthInput").value);
+                value = formatFlag(generateRandomBody(Number($("lengthInput").value)), $("prefixInput").value);
+                kind = "RANDOM";
+            } else if (requestedMode === "hash") {
+                const algorithm = $("hashAlgorithm").value;
+                const source = $("hashInput").value;
+                const prefix = $("hashPrefixInput").value;
+                const wrap = $("hashWrapToggle").checked;
+                const digest = await hashText(source, algorithm);
+                value = wrap ? formatFlag(digest, prefix) : digest;
+                kind = algorithm;
+            } else {
+                const source = $("leetInput").value;
+                if (!source.trim()) {
+                    $("leetInput").setAttribute("aria-invalid", "true");
+                    $("leetInput").focus();
+                    throw new Error("Masukkan teks terlebih dahulu.");
+                }
+                const random = $("leetStyle").value === "random";
+                const body = toLeet(source, { random, randomCase: $("randomCaseToggle").checked });
+                value = formatFlag(body, $("leetPrefixInput").value, false);
+                kind = random ? "LEET ACAK" : "LEET KLASIK";
+            }
+            const result = { value, kind };
+            results[requestedMode] = result;
+            history.unshift(result);
+            history.splice(6);
+            renderHistory();
+        } catch (error) {
+            $("formError").textContent = error.message || "Gagal membuat flag. Coba lagi.";
+            $("formError").hidden = false;
+        } finally {
+            busy = false;
+            $("generateButton").disabled = false;
+            $("generatorForm").removeAttribute("aria-busy");
+            renderResult();
+        }
+    }
+
+    async function copy(text) {
+        const focused = document.activeElement;
+        let fallback;
+        try {
+            if (navigator.clipboard?.writeText) {
+                await navigator.clipboard.writeText(text);
+            } else {
+                fallback = document.createElement("textarea");
+                fallback.value = text;
+                fallback.className = "clipboard-fallback";
+                fallback.setAttribute("readonly", "");
+                document.body.append(fallback);
+                fallback.select();
+                if (!document.execCommand("copy")) throw new Error("Clipboard unavailable");
+            }
+            notify("Tersalin.");
+            return true;
+        } catch {
+            notify("Gagal menyalin. Salin teks secara manual.");
+            return false;
+        } finally {
+            fallback?.remove();
+            focused?.focus({ preventScroll: true });
+        }
+    }
+
+    function renderHistory() {
+        $("historyList").replaceChildren();
+        $("historyEmpty").hidden = history.length > 0;
+        $("historyCount").textContent = history.length;
+        $("clearHistory").disabled = history.length === 0;
+        history.forEach(result => {
+            const row = document.createElement("li");
+            const badge = document.createElement("span");
+            badge.className = "history-kind";
+            badge.textContent = result.kind;
+            const text = document.createElement("code");
+            text.textContent = result.value;
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "icon-button";
+            button.setAttribute("aria-label", "Salin hasil " + result.kind);
+            const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            icon.classList.add("icon");
+            icon.setAttribute("aria-hidden", "true");
+            const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+            use.setAttribute("href", "#i-copy");
+            icon.append(use);
+            button.append(icon);
+            button.addEventListener("click", () => copy(result.value));
+            row.append(badge, text, button);
+            $("historyList").append(row);
+        });
+    }
+
+    function applyTheme(theme) {
+        document.body.classList.toggle("light-theme", theme === "light");
+        const label = theme === "light" ? "Aktifkan tema gelap" : "Aktifkan tema terang";
+        $("themeToggle").setAttribute("aria-label", label);
+        $("themeToggle").title = label;
+        $("themeIcon").setAttribute("href", theme === "light" ? "#i-moon" : "#i-sun");
+        // Storage may be blocked in private browsing or when opening local files.
+        try { localStorage.setItem("flaggen-theme", theme); } catch { /* Theme still works for this session. */ }
+    }
+
+    tabs.forEach((tab, index) => {
+        tab.addEventListener("click", () => selectMode(tab.dataset.mode));
+        tab.addEventListener("keydown", event => {
+            let next = index;
+            if (event.key === "ArrowRight") next = (index + 1) % tabs.length;
+            else if (event.key === "ArrowLeft") next = (index + tabs.length - 1) % tabs.length;
+            else if (event.key === "Home") next = 0;
+            else if (event.key === "End") next = tabs.length - 1;
+            else return;
+            event.preventDefault();
+            tabs[next].focus();
+            selectMode(tabs[next].dataset.mode);
+        });
     });
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-    updateLengthLabel();
-    initTheme();
-});
+    $("generatorForm").addEventListener("submit", generate);
+    $("generatorForm").addEventListener("input", clearError);
+    $("lengthSlider").addEventListener("input", event => syncLength(event.target.value));
+    $("lengthInput").addEventListener("input", event => {
+        if (event.target.value !== "") $("lengthSlider").value = clampLength(event.target.value);
+    });
+    $("lengthInput").addEventListener("change", event => syncLength(event.target.value));
+    $("hashAlgorithm").addEventListener("change", updateAlgorithmNote);
+    $("hashWrapToggle").addEventListener("change", event => { $("hashPrefixInput").disabled = !event.target.checked; });
+    $("hashExample").addEventListener("click", () => { $("hashInput").value = "you found the secret"; $("hashInput").focus(); });
+    $("leetExample").addEventListener("click", () => { $("leetInput").value = "you found the secret"; $("leetInput").focus(); clearError(); });
+    $("copyButton").addEventListener("click", async () => {
+        const result = results[mode];
+        if (result && await copy(result.value)) {
+            $("copyLabel").textContent = "Tersalin";
+            clearTimeout(copyTimer);
+            copyTimer = setTimeout(() => { $("copyLabel").textContent = "Salin hasil"; }, 2000);
+        }
+    });
+    $("clearHistory").addEventListener("click", () => { history.length = 0; renderHistory(); notify("Riwayat dihapus."); });
+    document.addEventListener("keydown", event => {
+        if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+            event.preventDefault();
+            $("generatorForm").requestSubmit();
+        }
+    });
+    let savedTheme;
+    try { savedTheme = localStorage.getItem("flaggen-theme"); } catch { /* Use system preference. */ }
+    applyTheme(["light", "dark"].includes(savedTheme) ? savedTheme : (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"));
+    $("themeToggle").addEventListener("click", () => applyTheme(document.body.classList.contains("light-theme") ? "dark" : "light"));
+    updateAlgorithmNote();
+    syncLength($("lengthInput").value);
+})();
