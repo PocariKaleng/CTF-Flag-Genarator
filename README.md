@@ -79,12 +79,14 @@ MD5 tersedia secara lokal berdasarkan [RFC 1321](https://www.rfc-editor.org/rfc/
 Dengan Node.js 22 atau lebih baru:
 
 ```sh
-node --test tests/generator.test.cjs
+node --test
 node --check generator.js
 node --check script.js
 ```
 
 Tes memeriksa kelima hash terhadap implementasi `node:crypto`, termasuk input kosong, Unicode, whitespace, serta batas blok MD5. Tes juga mencakup mapping leet acak/klasik, kapitalisasi, panjang flag, prefix, dan batas bilangan acak.
+
+Setelah mengubah CSS atau JavaScript, jalankan `node scripts/update-assets.cjs` sebelum tes dan deployment. Perintah ini memperbarui versi URL aset berdasarkan isi file, agar browser mengambil file baru. Tes memeriksa versi ini agar HTML tidak memakai aset lama dari cache.
 
 Verifikasi browser dilakukan di Chrome: seluruh algoritma, clipboard, validasi, riwayat, navigasi keyboard, kedua tema, storage diblokir, jalur error, serta mode `file://`. Layout diperiksa pada lebar 320, 390, 768, 1024, dan 1440 px.
 
