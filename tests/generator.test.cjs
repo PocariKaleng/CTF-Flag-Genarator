@@ -23,8 +23,19 @@ test('classic leet keeps the original mappings and whitespace behavior', () => {
 
 test('random leet varies substitutions with controlled random choices', () => {
     assert.equal(toLeet('Aa Ee', { random: true }, () => 0), '44_33');
-    assert.equal(toLeet('Aa Ee', { random: true }, max => max - 1), '@@_€€');
+    assert.equal(toLeet('Aa Ee', { random: true }, max => max - 1), '@@_[-[-');
     assert.notEqual(toLeet('hello', { random: true }, () => 0), toLeet('hello', { random: true }, max => max - 1));
+});
+
+test('leet substitutions use printable ASCII for every mapping and case option', () => {
+    const input = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 !@#$%^&*()[]{}-_=+;:,.?/';
+    for (const random of [false, true]) {
+        for (const randomCase of [false, true]) {
+            for (const choose of [() => 0, max => max - 1]) {
+                assert.match(toLeet(input, { random, randomCase }, choose), /^[\x20-\x7e]+$/);
+            }
+        }
+    }
 });
 
 test('random case preserves symbols and can change untouched letters', () => {

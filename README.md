@@ -66,7 +66,7 @@ Hash dihitung dari teks UTF-8 pada kolom input, termasuk spasi dan baris baru. P
 4. Opsional: aktifkan acak huruf besar/kecil dan masukkan prefix.
 5. Klik **Generate leet**. Prefix kosong menghasilkan teks leet tanpa pembungkus.
 
-Spasi dan karakter whitespace diubah menjadi `_`. Karakter tanpa padanan, termasuk emoji, dipertahankan. Input hanya berupa whitespace ditolak.
+Padanan leet hanya memakai karakter ASCII, misalnya `e → 3 / [-`. Spasi dan karakter whitespace diubah menjadi `_`. Karakter input tanpa padanan, termasuk emoji, dipertahankan. Input hanya berupa whitespace ditolak.
 
 ## Privasi dan implementasi
 

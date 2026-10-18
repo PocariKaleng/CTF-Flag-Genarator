@@ -18,6 +18,7 @@
 
 ### Fixed
 
+- Padanan leet acak hanya memakai ASCII; simbol euro diganti dengan `[-`.
 - Preferensi tema yang diblokir browser tidak lagi menghentikan aplikasi.
 - Tombol salin tidak dapat menyalin placeholder dan memberi pesan saat akses clipboard gagal.
 - Tautan GitHub mengarah ke repositori PocariKaleng.
