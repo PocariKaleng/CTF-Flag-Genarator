@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="dark light">
-    <meta name="description" content="Buat flag CTF acak, hash MD5 dan SHA, atau leet acak. Gratis, privat, dan diproses sepenuhnya di browser.">
+    <meta name="description" content="Generator flag CTF dengan pilihan random, hash, dan leet.">
     <title>Flag Generator — CTF Toolkit</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="style.css">
@@ -20,10 +20,8 @@
         <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 5-6 7 6 7M16 5l6 7-6 7m-3-16-2 20"/></symbol>
         <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></symbol>
         <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
-        <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
         <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1 1m12 12 1 1M5 19l1-1M18 6l1-1"/></symbol>
         <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 15A9 9 0 0 1 9 4a9 9 0 1 0 11 11Z"/></symbol>
-        <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2"/></symbol>
         <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
         <symbol id="i-github" viewBox="0 0 24 24"><path d="M9 19c-4 1-4-2-6-2m12 5v-4a3 3 0 0 0-1-2c3 0 6-2 6-5a4 4 0 0 0-1-3 4 4 0 0 0 0-4s-1 0-4 2a13 13 0 0 0-6 0C6 4 5 4 5 4a4 4 0 0 0 0 4 4 4 0 0 0-1 3c0 3 3 5 6 5a3 3 0 0 0-1 2v4"/></symbol>
     </svg>
@@ -35,8 +33,6 @@
                 <span>flag<span class="brand-muted">generator</span><span class="brand-dot">.</span></span>
             </a>
             <div class="header-actions">
-                <span class="local-badge"><span class="status-dot"></span>100% lokal</span>
-                <span class="header-divider"></span>
                 <button class="icon-button" id="themeToggle" type="button" aria-label="Aktifkan tema terang" title="Ganti tema">
                     <svg class="icon"><use id="themeIcon" href="#i-sun"/></svg>
                 </button>
@@ -48,9 +44,8 @@
 
         <main>
             <div class="intro">
-                <p class="eyebrow"><span class="tiny-cross">+</span> THE CTF CREATOR'S TOOLKIT</p>
-                <h1>Challenge siap.<br class="mobile-break"> <span>Flag beres.</span></h1>
-                <p class="intro-copy">Buat flag acak, ubah teks jadi hash, atau racik leetspeak.<br class="desktop-break"> Semua dalam satu tempat. Semua di browser kamu.</p>
+                <h1>Flag Generator</h1>
+                <p class="intro-copy">Buat flag acak, hash, atau leet.</p>
             </div>
 
             <div class="workspace" id="generator">
@@ -60,7 +55,7 @@
                             <svg class="icon"><use href="#i-shuffle"/></svg>Random
                         </button>
                         <button class="mode-tab" id="tab-hash" role="tab" aria-selected="false" aria-controls="panel-hash" tabindex="-1" data-mode="hash">
-                            <svg class="icon"><use href="#i-hash"/></svg>Hash<span class="new-badge">BARU</span>
+                            <svg class="icon"><use href="#i-hash"/></svg>Hash
                         </button>
                         <button class="mode-tab" id="tab-leet" role="tab" aria-selected="false" aria-controls="panel-leet" tabindex="-1" data-mode="leet">
                             <svg class="icon"><use href="#i-code"/></svg>Leet
@@ -69,11 +64,11 @@
 
                     <form id="generatorForm" novalidate>
                         <div class="tab-panel" id="panel-random" role="tabpanel" aria-labelledby="tab-random">
-                            <div class="panel-heading"><h2>Flag acak</h2><p>Satu klik, satu flag baru untuk challenge kamu.</p></div>
+                            <div class="panel-heading"><h2>Flag acak</h2><p>Atur prefix dan panjang flag.</p></div>
                             <div class="field">
                                 <label for="prefixInput">Prefix flag <span class="optional">opsional</span></label>
                                 <div class="prefix-field"><input id="prefixInput" type="text" maxlength="80" placeholder="FLAG" autocomplete="off" spellcheck="false"><span>{ … }</span></div>
-                                <p class="help">Nama event kamu. Kurung kurawal ditambahkan otomatis.</p>
+                                <p class="help">Contoh: CTF{isi_flag}. Kosongkan untuk memakai FLAG.</p>
                             </div>
                             <div class="field">
                                 <div class="label-row"><label for="lengthInput">Panjang isi flag</label><span class="field-meta">6–100 karakter</span></div>
@@ -81,38 +76,38 @@
                                     <input id="lengthSlider" type="range" min="6" max="100" value="16" aria-label="Panjang isi flag">
                                     <input id="lengthInput" type="number" min="6" max="100" value="16" inputmode="numeric" aria-describedby="lengthHelp">
                                 </div>
-                                <p class="help" id="lengthHelp">Panjang ini hanya menghitung isi di dalam kurung.</p>
+                                <p class="help" id="lengthHelp">Tidak termasuk prefix dan kurung.</p>
                             </div>
-                            <div class="charset-note"><span class="small-label">KARAKTER YANG DIGUNAKAN</span><div><code>A–Z</code><code>a–z</code><code>0–9</code><span>Acak dengan Web Crypto</span></div></div>
+                            <div class="charset-note"><span class="small-label">Karakter</span><div><code>A–Z</code><code>a–z</code><code>0–9</code></div></div>
                         </div>
 
                         <div class="tab-panel" id="panel-hash" role="tabpanel" aria-labelledby="tab-hash" hidden>
-                            <div class="panel-heading"><h2>Flag dari hash</h2><p>Teks kamu, diubah menjadi sidik jari digital.</p></div>
+                            <div class="panel-heading"><h2>Hash</h2><p>Masukkan teks dan pilih algoritma.</p></div>
                             <div class="field">
                                 <div class="label-row"><label for="hashInput">Teks sumber</label><button class="text-button" type="button" id="hashExample">Pakai contoh</button></div>
-                                <textarea id="hashInput" rows="3" maxlength="10000" placeholder="Tulis rahasia di balik challenge kamu…" spellcheck="false" aria-describedby="hashInputHelp"></textarea>
-                                <p class="help" id="hashInputHelp">UTF-8 · Spasi dan baris baru ikut dihitung. Input kosong juga valid.</p>
+                                <textarea id="hashInput" rows="3" maxlength="10000" placeholder="Masukkan teks" spellcheck="false" aria-describedby="hashInputHelp"></textarea>
+                                <p class="help" id="hashInputHelp">Spasi dan baris baru ikut dihitung.</p>
                             </div>
                             <div class="field-row">
                                 <div class="field"><label for="hashAlgorithm">Algoritma hash</label><select id="hashAlgorithm"><option value="MD5">MD5</option><option value="SHA-1">SHA-1</option><option value="SHA-256" selected>SHA-256</option><option value="SHA-384">SHA-384</option><option value="SHA-512">SHA-512</option></select></div>
                                 <div class="field"><label for="hashPrefixInput">Prefix flag <span class="optional">opsional</span></label><input id="hashPrefixInput" type="text" maxlength="80" placeholder="FLAG" autocomplete="off" spellcheck="false"></div>
                             </div>
-                            <p class="algorithm-note" id="algorithmNote">SHA-256 menghasilkan 64 karakter heksadesimal.</p>
-                            <label class="check-row"><input id="hashWrapToggle" type="checkbox" checked><span>Bungkus dalam format flag <small>PREFIX{hash}</small></span></label>
+                            <p class="algorithm-note" id="algorithmNote">64 karakter heksadesimal</p>
+                            <label class="check-row"><input id="hashWrapToggle" type="checkbox" checked><span>Gunakan format flag <small>PREFIX{hash}</small></span></label>
                         </div>
 
                         <div class="tab-panel" id="panel-leet" role="tabpanel" aria-labelledby="tab-leet" hidden>
-                            <div class="panel-heading"><h2>Leet, dengan twist.</h2><p>Kalimat biasa jadi kombinasi yang luar biasa.</p></div>
+                            <div class="panel-heading"><h2>Konversi leet</h2><p>Ubah huruf menjadi angka atau simbol.</p></div>
                             <div class="field">
                                 <div class="label-row"><label for="leetInput">Teks untuk diubah</label><button class="text-button" type="button" id="leetExample">Pakai contoh</button></div>
                                 <textarea id="leetInput" rows="3" maxlength="10000" placeholder="Contoh: you found the secret" spellcheck="false" aria-describedby="leetHelp"></textarea>
                             </div>
                             <div class="field-row">
-                                <div class="field"><label for="leetStyle">Gaya leet</label><select id="leetStyle"><option value="random">Acak · variasi tiap klik</option><option value="classic">Klasik · konversi tetap</option></select></div>
+                                <div class="field"><label for="leetStyle">Gaya leet</label><select id="leetStyle"><option value="random">Acak</option><option value="classic">Klasik</option></select></div>
                                 <div class="field"><label for="leetPrefixInput">Prefix flag <span class="optional">opsional</span></label><input id="leetPrefixInput" type="text" maxlength="80" placeholder="Tanpa prefix" autocomplete="off" spellcheck="false"></div>
                             </div>
-                            <label class="check-row"><input id="randomCaseToggle" type="checkbox"><span>Acak huruf besar & kecil <small>Beri variasi pada huruf yang tersisa</small></span></label>
-                            <p class="help leet-help" id="leetHelp">a → 4 / @ &nbsp; s → 5 / $ &nbsp; o → 0 / ()<br>Spasi menjadi _. Karakter tanpa padanan tetap dipertahankan.</p>
+                            <label class="check-row"><input id="randomCaseToggle" type="checkbox"><span>Acak huruf besar/kecil</span></label>
+                            <p class="help leet-help" id="leetHelp">a → 4 / @ &nbsp; s → 5 / $ &nbsp; o → 0 / ()<br>Spasi diganti _.</p>
                         </div>
 
                         <div class="form-bottom">
@@ -124,29 +119,26 @@
                 </section>
 
                 <section class="result-panel" aria-labelledby="resultHeading">
-                    <div class="result-heading"><h2 id="resultHeading">HASIL GENERATE</h2><span class="result-type" id="resultType">RANDOM</span></div>
+                    <div class="result-heading"><h2 id="resultHeading">Hasil</h2><span class="result-type" id="resultType">RANDOM</span></div>
                     <div class="result-stage" id="resultStage">
-                        <div class="result-decoration" aria-hidden="true"><svg class="icon"><use href="#i-flag"/></svg></div>
-                        <p class="empty-title" id="emptyTitle">Flag berikutnya dimulai di sini.</p>
-                        <output id="flagOutput" class="flag-output" aria-live="polite" aria-atomic="true">FLAG{<span class="output-placeholder">your_next_challenge</span>}</output>
-                        <p class="result-caption" id="resultCaption">Atur generator di sebelah, lalu buat flag pertamamu.</p>
+                        <output id="flagOutput" class="flag-output output-placeholder" aria-live="polite" aria-atomic="true">Belum ada hasil.</output>
+                        <p class="result-caption" id="resultCaption">Klik Generate untuk mulai.</p>
                     </div>
                     <div class="result-meta"><span><span class="status-dot" id="outputDot"></span><span id="resultStatus">Menunggu input</span></span><span id="characterCount">— karakter</span></div>
                     <button class="copy-button" id="copyButton" type="button" disabled><svg class="icon"><use href="#i-copy"/></svg><span id="copyLabel">Salin hasil</span></button>
-                    <div class="privacy-note"><svg class="icon"><use href="#i-lock"/></svg><p>Hanya kamu yang tahu.<br><span>Teks dan flag diproses lokal, tanpa dikirim ke server.</span></p></div>
                 </section>
             </div>
 
             <section class="history-section" aria-labelledby="historyHeading">
                 <div class="history-header"><h2 id="historyHeading"><svg class="icon"><use href="#i-clock"/></svg>Riwayat sesi <span id="historyCount">0</span></h2><button type="button" class="text-button" id="clearHistory" disabled>Hapus riwayat</button></div>
-                <p class="history-empty" id="historyEmpty">Enam hasil terakhir akan muncul di sini. Riwayat hilang saat halaman dimuat ulang.</p>
+                <p class="history-empty" id="historyEmpty">Belum ada riwayat.</p>
                 <ul id="historyList" class="history-list" aria-label="Hasil generate terbaru"></ul>
             </section>
         </main>
 
-        <footer class="page-footer"><span>Dibuat untuk pembuat challenge.</span><a href="https://github.com/PocariKaleng/CTF-Flag-Genarator" target="_blank" rel="noopener noreferrer">Open source di GitHub <span aria-hidden="true">↗</span></a></footer>
+        <footer class="page-footer"><a href="https://github.com/PocariKaleng/CTF-Flag-Genarator" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></footer>
     </div>
     <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
-    <noscript><p class="noscript-note">Aktifkan JavaScript untuk menggunakan generator ini. Semua pemrosesan berlangsung di browser kamu.</p></noscript>
+    <noscript><p class="noscript-note">Aktifkan JavaScript untuk menggunakan generator.</p></noscript>
 </body>
 </html>

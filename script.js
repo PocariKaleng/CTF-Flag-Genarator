@@ -39,17 +39,16 @@
         clearTimeout(copyTimer);
         $("copyLabel").textContent = "Salin hasil";
         const result = results[mode];
-        $("generateLabel").textContent = mode === "leet" ? (result ? "Acak / konversi lagi" : "Generate leet") : mode === "hash" ? "Generate hash" : "Generate flag";
+        $("generateLabel").textContent = mode === "leet" ? "Generate leet" : mode === "hash" ? "Generate hash" : "Generate flag";
         $("resultType").textContent = result?.kind || mode.toUpperCase();
         $("resultStage").classList.toggle("has-result", Boolean(result));
         document.querySelector(".result-panel").classList.toggle("has-result", Boolean(result));
-        $("emptyTitle").hidden = Boolean(result);
         $("copyButton").disabled = !result;
-        $("flagOutput").textContent = result ? result.value : "FLAG{your_next_challenge}";
+        $("flagOutput").textContent = result ? result.value : "Belum ada hasil.";
         $("flagOutput").classList.toggle("output-placeholder", !result);
-        $("resultStatus").textContent = result ? "Siap digunakan" : "Menunggu input";
+        $("resultStatus").textContent = result ? "Selesai" : "Menunggu input";
         $("characterCount").textContent = result ? Array.from(result.value).length + " karakter" : "— karakter";
-        $("resultCaption").textContent = result ? result.caption : "Pilih pengaturan, lalu klik Generate untuk mulai.";
+        $("resultCaption").hidden = Boolean(result);
     }
 
     function syncLength(value) {
@@ -60,8 +59,7 @@
 
     function updateAlgorithmNote() {
         const algorithm = $("hashAlgorithm").value;
-        const note = algorithm + " menghasilkan " + HASH_LENGTHS[algorithm] + " karakter heksadesimal.";
-        $("algorithmNote").textContent = note + (["MD5", "SHA-1"].includes(algorithm) ? " Cocok untuk challenge CTF; hindari untuk keamanan password." : "");
+        $("algorithmNote").textContent = HASH_LENGTHS[algorithm] + " karakter heksadesimal";
     }
 
     async function generate(event) {
@@ -74,12 +72,11 @@
         $("generatorForm").setAttribute("aria-busy", "true");
         $("generateLabel").textContent = "Memproses…";
         try {
-            let value, kind, caption;
+            let value, kind;
             if (requestedMode === "random") {
                 syncLength($("lengthInput").value);
                 value = formatFlag(generateRandomBody(Number($("lengthInput").value)), $("prefixInput").value);
                 kind = "RANDOM";
-                caption = "Flag acak baru, dibuat dengan Web Crypto.";
             } else if (requestedMode === "hash") {
                 const algorithm = $("hashAlgorithm").value;
                 const source = $("hashInput").value;
@@ -88,21 +85,19 @@
                 const digest = await hashText(source, algorithm);
                 value = wrap ? formatFlag(digest, prefix) : digest;
                 kind = algorithm;
-                caption = "Hash dari teks UTF-8 persis seperti input kamu.";
             } else {
                 const source = $("leetInput").value;
                 if (!source.trim()) {
                     $("leetInput").setAttribute("aria-invalid", "true");
                     $("leetInput").focus();
-                    throw new Error("Isi teks yang ingin kamu ubah menjadi leet.");
+                    throw new Error("Masukkan teks terlebih dahulu.");
                 }
                 const random = $("leetStyle").value === "random";
                 const body = toLeet(source, { random, randomCase: $("randomCaseToggle").checked });
                 value = formatFlag(body, $("leetPrefixInput").value, false);
                 kind = random ? "LEET ACAK" : "LEET KLASIK";
-                caption = random ? "Klik generate lagi untuk mengacak padanan huruf. Hasil yang sama masih mungkin." : "Konversi klasik dengan padanan huruf tetap.";
             }
-            const result = { value, kind, caption };
+            const result = { value, kind };
             results[requestedMode] = result;
             history.unshift(result);
             history.splice(6);
@@ -133,10 +128,10 @@
                 fallback.select();
                 if (!document.execCommand("copy")) throw new Error("Clipboard unavailable");
             }
-            notify("Hasil berhasil disalin.");
+            notify("Tersalin.");
             return true;
         } catch {
-            notify("Tidak bisa menyalin otomatis. Pilih teks hasil, lalu salin secara manual.");
+            notify("Gagal menyalin. Salin teks secara manual.");
             return false;
         } finally {
             fallback?.remove();
@@ -211,12 +206,12 @@
     $("copyButton").addEventListener("click", async () => {
         const result = results[mode];
         if (result && await copy(result.value)) {
-            $("copyLabel").textContent = "Tersalin!";
+            $("copyLabel").textContent = "Tersalin";
             clearTimeout(copyTimer);
             copyTimer = setTimeout(() => { $("copyLabel").textContent = "Salin hasil"; }, 2000);
         }
     });
-    $("clearHistory").addEventListener("click", () => { history.length = 0; renderHistory(); notify("Riwayat sesi dihapus."); });
+    $("clearHistory").addEventListener("click", () => { history.length = 0; renderHistory(); notify("Riwayat dihapus."); });
     document.addEventListener("keydown", event => {
         if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
             event.preventDefault();

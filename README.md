@@ -1,6 +1,6 @@
 # Flag Generator
 
-Toolkit ringan untuk pembuat challenge CTF: buat flag acak, hash teks, dan racik leetspeak dengan padanan acak. HTML, CSS, dan JavaScript murni — tanpa framework, instalasi, CDN, atau proses build.
+Generator flag CTF dengan mode Random, Hash, dan Leet. Menggunakan HTML, CSS, dan JavaScript tanpa proses build.
 
 ![Flag Generator dalam tema gelap](docs/preview-dark.png)
 
@@ -47,7 +47,7 @@ SHA menggunakan Web Crypto API, yang memerlukan secure context. Gunakan HTTPS un
 | SHA-512 | 128 karakter |
 
 3. Isi prefix jika perlu; kosong berarti `FLAG`.
-4. Matikan **Bungkus dalam format flag** untuk mendapatkan hash mentah.
+4. Matikan **Gunakan format flag** untuk mendapatkan hash mentah.
 5. Klik **Generate hash**.
 
 Contoh: input `abc`, algoritma MD5, prefix `CTF`:

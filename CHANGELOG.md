@@ -11,6 +11,7 @@
 
 ### Changed
 
+- Teks UI disederhanakan; slogan, badge promosi, dan pesan privasi dihapus.
 - UI berbahasa Indonesia dengan layout responsif, tema terang/gelap, label form, dan fokus keyboard yang jelas.
 - Output panjang membungkus baris dan tetap dapat disalin utuh.
 - Pengacakan memakai Web Crypto dengan rejection sampling.
