@@ -18,6 +18,7 @@
 
 ### Fixed
 
+- URL CSS dan JavaScript memakai versi berdasarkan isi file agar pembaruan tidak memuat generator lama dari cache browser.
 - Hasil leet hanya berisi A-Z, a-z, 0-9, dan underscore; setiap spasi diganti underscore dan simbol lain dihapus.
 - Preferensi tema yang diblokir browser tidak lagi menghentikan aplikasi.
 - Tombol salin tidak dapat menyalin placeholder dan memberi pesan saat akses clipboard gagal.
