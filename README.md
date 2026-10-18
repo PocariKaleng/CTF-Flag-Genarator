@@ -1,93 +1,112 @@
+# Flag Generator
 
-Everything runs in the browser. No frameworks required.
+Toolkit ringan untuk pembuat challenge CTF: buat flag acak, hash teks, dan racik leetspeak dengan padanan acak. HTML, CSS, dan JavaScript murni — tanpa framework, instalasi, CDN, atau proses build.
 
----
+![Flag Generator dalam tema gelap](docs/preview-dark.png)
 
-## 🚀 Deployment
+## Fitur
 
-This project is fully static. You can deploy it anywhere:
+- **Random:** flag alfanumerik sepanjang 6–100 karakter, prefix opsional dengan default `FLAG`, dan pengacakan melalui `crypto.getRandomValues()` tanpa modulo bias.
+- **Hash:** MD5, SHA-1, SHA-256, SHA-384, dan SHA-512, dengan hasil heksadesimal lengkap. Pilih hasil mentah atau format `PREFIX{hash}`.
+- **Leet:** padanan acak per huruf, misalnya `a → 4 / @`, `s → 5 / $`, dan `o → 0 / ()`; opsi acak kapitalisasi serta mode Klasik dengan mapping asli.
+- **UI responsif:** tiga tab, tema terang/gelap mengikuti preferensi sistem, hasil panjang yang membungkus baris, dan konfirmasi salin.
+- **Riwayat sesi:** enam hasil terakhir dari semua mode, masing-masing bisa disalin. Riwayat disimpan dalam memori dan hilang saat halaman dimuat ulang.
+- **Keyboard:** pindah tab dengan ← / →, Home, dan End; generate dengan Ctrl+Enter atau ⌘+Enter.
 
-### GitHub Pages
-1. Create a repository  
-2. Upload all files (`index.html`, `style.css`, `script.js`)  
-3. Go to:  
-   **Settings → Pages → Deploy from branch → main**  
-4. Your site will be online instantly.
+## Jalankan
 
-### Other hosting options:
-- Netlify  
-- Vercel  
-- Cloudflare Pages  
-- Local offline usage (double-click `index.html`)
+Buka `index.html` langsung di browser modern, atau gunakan server lokal:
 
----
+```sh
+python -m http.server 8000
+```
 
-## 🛠️ How to Use
+Buka `http://localhost:8000`. Tidak ada dependensi yang perlu diinstal.
 
-### Random Flag Generator
-1. Enter your flag prefix  
-2. Set body length  
-3. Click **Generate Flag**  
-4. Copy output with one click  
-5. Optional: check recent generated flags
+SHA menggunakan Web Crypto API, yang memerlukan secure context. Gunakan HTTPS untuk hosting atau localhost saat pengembangan. Buka langsung melalui `file://` juga sudah diuji di Chrome; dukungan browser lain dapat berbeda. Jika Web Crypto tidak tersedia, aplikasi menampilkan pesan error.
 
-### Leet Converter
-1. Enter text  
-2. Enable *Random Case* (optional)  
-3. Add prefix (optional)  
-4. Click **Convert to Leet**  
-5. Copy result if needed  
+## Cara pakai
 
----
+### Random
 
-## 🧩 Why This Exists
+1. Isi prefix event, atau kosongkan untuk `FLAG`.
+2. Tentukan panjang isi flag (tidak termasuk prefix dan kurung).
+3. Klik **Generate flag**, lalu **Salin hasil**.
 
-CTF creators often repeat the same tasks:
-- Making unique flags  
-- Converting hints into leet format  
-- Randomizing strings  
-- Quickly generating different event-themed flags  
+### Hash
 
-This tool automates all of that with a clean, simple UI.
+1. Pilih tab **Hash** dan masukkan teks sumber.
+2. Pilih algoritma:
 
----
+| Algoritma | Panjang hash (heksadesimal) |
+| --- | --- |
+| MD5 | 32 karakter |
+| SHA-1 | 40 karakter |
+| SHA-256 | 64 karakter |
+| SHA-384 | 96 karakter |
+| SHA-512 | 128 karakter |
 
-## 🔒 Security
+3. Isi prefix jika perlu; kosong berarti `FLAG`.
+4. Matikan **Bungkus dalam format flag** untuk mendapatkan hash mentah.
+5. Klik **Generate hash**.
 
-- Everything is processed locally (browser-side)
-- No server, no uploads, no tracking  
-- Safe for CTF challenges, offline machines, and private projects  
+Contoh: input `abc`, algoritma MD5, prefix `CTF`:
 
----
+```text
+CTF{900150983cd24fb0d6963f7d28e17f72}
+```
 
-## 🤝 Contributing
+Hash dihitung dari teks UTF-8 pada kolom input, termasuk spasi dan baris baru. Prefix dan kurung tidak ikut di-hash. Input kosong valid dan menghasilkan digest string kosong. Input dan algoritma yang sama menghasilkan hash yang sama; tidak ada salt acak.
 
-Pull requests are welcome.  
-If you want to add:
-- Additional encoding styles  
-- Custom mapping systems  
-- More presets or event templates  
-Feel free to contribute.
+### Leet
 
----
+1. Pilih tab **Leet**, lalu masukkan teks.
+2. Gunakan gaya **Acak** untuk memilih padanan secara independen pada tiap huruf. Klik lagi untuk mengacak ulang; hasil yang sama tetap mungkin, terutama untuk input pendek.
+3. Pilih **Klasik** untuk mapping tetap: `A→4, E→3, T→7, S→5, G→9, O→0, L→1`.
+4. Opsional: aktifkan acak huruf besar/kecil dan masukkan prefix.
+5. Klik **Generate leet**. Prefix kosong menghasilkan teks leet tanpa pembungkus.
 
-## 📜 License
+Spasi dan karakter whitespace diubah menjadi `_`. Karakter tanpa padanan, termasuk emoji, dipertahankan. Input hanya berupa whitespace ditolak.
 
-This project is free and open-source under the **MIT License**.
+## Privasi dan implementasi
 
----
+Semua pemrosesan berlangsung di browser. Tidak ada API, unggahan, analytics, font eksternal, atau permintaan jaringan dari generator. Hanya pilihan tema yang disimpan di `localStorage`; input, hasil, dan riwayat tidak disimpan di sana. Jika penyimpanan browser diblokir, generator tetap berjalan.
 
-## Theme
+MD5 tersedia secara lokal berdasarkan [RFC 1321](https://www.rfc-editor.org/rfc/rfc1321). SHA memakai [SubtleCrypto.digest](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest). MD5 dan SHA-1 disediakan untuk kebutuhan challenge dan kompatibilitas; jangan gunakan keduanya untuk menyimpan password atau aplikasi yang membutuhkan ketahanan terhadap collision.
 
-- Dark Theme
-<img width="1826" height="927" alt="image" src="https://github.com/user-attachments/assets/1a0d5751-f395-49a7-9920-6516611f4454" />
+## Pengujian
 
-- Light Theme 
-<img width="1853" height="992" alt="image" src="https://github.com/user-attachments/assets/c04ad48f-ab5a-44e7-b5e0-b505fdb43300" />
+Dengan Node.js 22 atau lebih baru:
 
----
+```sh
+node --test tests/generator.test.cjs
+node --check generator.js
+node --check script.js
+```
 
-## ⭐ If You Like This Project  
-Give it a star on GitHub — it helps more CTF creators discover useful tools like this.
+Tes memeriksa kelima hash terhadap implementasi `node:crypto`, termasuk input kosong, Unicode, whitespace, serta batas blok MD5. Tes juga mencakup mapping leet acak/klasik, kapitalisasi, panjang flag, prefix, dan batas bilangan acak.
 
-Happy Make CTF Challenge ✨
+Verifikasi browser dilakukan di Chrome: seluruh algoritma, clipboard, validasi, riwayat, navigasi keyboard, kedua tema, storage diblokir, jalur error, serta mode `file://`. Layout diperiksa pada lebar 320, 390, 768, 1024, dan 1440 px.
+
+## Deployment
+
+Untuk GitHub Pages, buka **Settings → Pages → Deploy from a branch**, lalu pilih branch `main` dan folder `/ (root)` setelah perubahan digabungkan.
+
+File yang harus tersedia bersama:
+
+```text
+index.html
+style.css
+generator.js
+script.js
+favicon.svg
+```
+
+Hosting statis lain seperti Netlify, Vercel, dan Cloudflare Pages juga dapat menyajikan folder ini langsung tanpa build command.
+
+<details>
+<summary>Preview tema terang</summary>
+
+![Flag Generator dalam tema terang](docs/preview-light.png)
+
+</details>
