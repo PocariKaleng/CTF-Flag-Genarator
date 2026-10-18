@@ -18,29 +18,41 @@ test('hash rejects unsupported algorithms', async () => {
 
 test('classic leet keeps the original mappings and whitespace behavior', () => {
     assert.equal(toLeet('A E T S G O L xyz', { random: false }), '4_3_7_5_9_0_1_xyz');
-    assert.equal(toLeet('hello\nworld\t🔐', { random: false }), 'h3110_w0r1d_🔐');
+    assert.equal(toLeet('hello\nworld\t🔐', { random: false }), 'h3110_w0r1d_');
 });
 
 test('random leet varies substitutions with controlled random choices', () => {
     assert.equal(toLeet('Aa Ee', { random: true }, () => 0), '44_33');
-    assert.equal(toLeet('Aa Ee', { random: true }, max => max - 1), '@@_[-[-');
+    assert.equal(toLeet('Aa Ee', { random: true }, max => max - 1), 'Aa_Ee');
     assert.notEqual(toLeet('hello', { random: true }, () => 0), toLeet('hello', { random: true }, max => max - 1));
 });
 
-test('leet substitutions use printable ASCII for every mapping and case option', () => {
-    const input = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 !@#$%^&*()[]{}-_=+;:,.?/';
+test('leet output only contains letters, digits and underscores in every mode', () => {
+    const input = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 !@#$%^&*()[]{}-_=+;:,.?/ é 🔐';
     for (const random of [false, true]) {
         for (const randomCase of [false, true]) {
-            for (const choose of [() => 0, max => max - 1]) {
-                assert.match(toLeet(input, { random, randomCase }, choose), /^[\x20-\x7e]+$/);
+            for (const choice of [0, 1, 2]) {
+                const choose = max => Math.min(choice, max - 1);
+                assert.match(toLeet(input, { random, randomCase }, choose), /^[A-Za-z0-9_]+$/);
             }
         }
     }
 });
 
-test('random case preserves symbols and can change untouched letters', () => {
-    assert.equal(toLeet('xyz 123 🔐', { random: false, randomCase: true }, () => 0), 'xyz_123_🔐');
-    assert.equal(toLeet('xyz 123 🔐', { random: false, randomCase: true }, () => 1), 'XYZ_123_🔐');
+test('random case preserves digits and underscores and can change untouched letters', () => {
+    assert.equal(toLeet('xyz 123 🔐', { random: false, randomCase: true }, () => 0), 'xyz_123_');
+    assert.equal(toLeet('xyz 123 🔐', { random: false, randomCase: true }, () => 1), 'XYZ_123_');
+});
+
+test('leet replaces every whitespace character with one underscore', () => {
+    assert.equal(toLeet(' one  two\tthree\n', { random: false }), '_0n3__7w0_7hr33_');
+    assert.equal(toLeet(' \t\n', { random: false }), '___');
+});
+
+test('leet removes punctuation and Unicode input instead of passing it through', () => {
+    assert.equal(toLeet('abc-123!🙂中', { random: false }), '4bc123');
+    assert.equal(toLeet('[]_^`{}\\', { random: false }), '_');
+    assert.equal(toLeet('!@#$%é🔐', { random: false }), '');
 });
 
 test('random flags respect length and the original alphanumeric charset', () => {
